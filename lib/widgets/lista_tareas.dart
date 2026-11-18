@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n/app_localizations.dart';
 import '../modelos/tarea.dart';
 import '../proveedores/proveedor_tareas.dart';
 import 'dialogo_tarea.dart';
@@ -18,14 +19,15 @@ class ListaTareas extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final estado = ref.watch(tareasProvider);
     return estado.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stackTrace) => ErrorTareas(
-        mensaje: 'No se pudieron cargar o guardar las tareas.',
+        mensaje: l10n.loadTasksError,
         alReintentar: () => ref.invalidate(tareasProvider),
       ),
-      data: (tareas) => _construirLista(context, ref, tareas),
+      data: (tareas) => _construirLista(context, ref, tareas, l10n),
     );
   }
 
@@ -33,6 +35,7 @@ class ListaTareas extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     List<Tarea> tareas,
+    AppLocalizations l10n,
   ) {
     final completadas = tareas.where((tarea) => tarea.completada).length;
     final visibles = tareas.where((tarea) {
@@ -45,15 +48,12 @@ class ListaTareas extends ConsumerWidget {
 
     if (visibles.isEmpty) {
       final (mensaje, icono) = switch (filtro) {
-        FiltroTareas.todas => ('Aún no tienes tareas', Icons.edit_note),
+        FiltroTareas.todas => (l10n.emptyAllTasks, Icons.edit_note),
         FiltroTareas.pendientes => (
-            'No tienes tareas pendientes',
-            Icons.check_circle_outline,
-          ),
-        FiltroTareas.completadas => (
-            'Todavía no has completado tareas',
-            Icons.task_alt,
-          ),
+          l10n.emptyPendingTasks,
+          Icons.check_circle_outline,
+        ),
+        FiltroTareas.completadas => (l10n.emptyCompletedTasks, Icons.task_alt),
       };
       return Column(
         children: [
@@ -85,9 +85,9 @@ class ListaTareas extends ConsumerWidget {
                 tarea: tarea,
                 alCambiarEstado: (completada) => _ejecutarMutacion(
                   context,
-                  () => ref.read(tareasProvider.notifier).actualizarTarea(
-                        tarea.copiarCon(completada: completada),
-                      ),
+                  () => ref
+                      .read(tareasProvider.notifier)
+                      .actualizarTarea(tarea.copiarCon(completada: completada)),
                 ),
                 alEditar: () => _editarTarea(context, ref, tarea),
                 alEliminar: () => _eliminarTarea(context, ref, tarea),
@@ -112,7 +112,9 @@ class ListaTareas extends ConsumerWidget {
 
     await _ejecutarMutacion(
       context,
-      () => ref.read(tareasProvider.notifier).actualizarTarea(
+      () => ref
+          .read(tareasProvider.notifier)
+          .actualizarTarea(
             tarea.copiarCon(
               titulo: datos.titulo,
               descripcion: datos.descripcion,
@@ -129,17 +131,19 @@ class ListaTareas extends ConsumerWidget {
     final confirmar = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar tarea'),
-        content: Text('¿Quieres eliminar "${tarea.titulo}"?'),
+        title: Text(AppLocalizations.of(context).deleteTask),
+        content: Text(
+          AppLocalizations.of(context).confirmDeleteTask(tarea.titulo),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           FilledButton(
             key: const ValueKey('confirmar-eliminar-tarea'),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Eliminar'),
+            child: Text(AppLocalizations.of(context).delete),
           ),
         ],
       ),
@@ -161,9 +165,7 @@ class ListaTareas extends ConsumerWidget {
     } catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No se pudo completar la operación. Inténtalo de nuevo.'),
-        ),
+        SnackBar(content: Text(AppLocalizations.of(context).operationError)),
       );
     }
   }

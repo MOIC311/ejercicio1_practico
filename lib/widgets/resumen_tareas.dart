@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../recursos/colores_app.dart' as colores_app;
 
 class ResumenTareas extends StatelessWidget {
@@ -14,6 +15,7 @@ class ResumenTareas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final pendientes = total - completadas;
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
@@ -30,16 +32,14 @@ class ResumenTareas extends StatelessWidget {
               children: [
                 Text(
                   pendientes == 0 && total > 0
-                      ? '¡Todo listo!'
-                      : 'Un paso a la vez',
+                      ? l10n.allTasksDone
+                      : l10n.oneStepAtATime,
                   style: Theme.of(context).textTheme.titleLarge
                       ?.copyWith(color: colores_app.Colors.blanco),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  pendientes == 1
-                      ? 'Te queda 1 tarea'
-                      : 'Te quedan $pendientes tareas',
+                  l10n.tasksRemaining(pendientes),
                   style: const TextStyle(color: Colors.white70),
                 ),
               ],
@@ -54,7 +54,7 @@ class ResumenTareas extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: Text(
-              '$completadas/$total',
+              l10n.taskProgress(completadas, total),
               style: const TextStyle(
                 color: colores_app.Colors.blanco,
                 fontSize: 15,

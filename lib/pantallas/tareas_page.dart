@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n/app_localizations.dart';
 import '../proveedores/proveedor_tareas.dart';
 import '../widgets/dialogo_tarea.dart';
 import 'tareas_completadas_page.dart';
@@ -15,22 +16,24 @@ class TareasPage extends ConsumerStatefulWidget {
 }
 
 class _TareasPageState extends ConsumerState<TareasPage> {
-  static const _titulos = ['Mis tareas', 'Pendientes', 'Completadas'];
   int _indiceSeleccionado = 0;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final titulo = switch (_indiceSeleccionado) {
+      0 => l10n.allTasksTitle,
+      1 => l10n.pendingTasksTitle,
+      _ => l10n.completedTasksTitle,
+    };
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(titulo, style: const TextStyle(fontWeight: FontWeight.w700)),
             Text(
-              _titulos[_indiceSeleccionado],
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const Text(
-              'Tu día, más organizado',
+              l10n.appTagline,
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.normal),
             ),
           ],
@@ -49,24 +52,24 @@ class _TareasPageState extends ConsumerState<TareasPage> {
         onDestinationSelected: (indice) {
           setState(() => _indiceSeleccionado = indice);
         },
-        destinations: const [
+        destinations: [
           NavigationDestination(
             key: ValueKey('pestana-todas'),
             icon: Icon(Icons.list_alt_outlined),
             selectedIcon: Icon(Icons.list_alt),
-            label: 'Todas',
+            label: l10n.allTab,
           ),
           NavigationDestination(
             key: ValueKey('pestana-pendientes'),
             icon: Icon(Icons.pending_actions_outlined),
             selectedIcon: Icon(Icons.pending_actions),
-            label: 'Pendientes',
+            label: l10n.pendingTab,
           ),
           NavigationDestination(
             key: ValueKey('pestana-completadas'),
             icon: Icon(Icons.task_alt_outlined),
             selectedIcon: Icon(Icons.task_alt),
-            label: 'Completadas',
+            label: l10n.completedTab,
           ),
         ],
       ),
@@ -74,7 +77,7 @@ class _TareasPageState extends ConsumerState<TareasPage> {
         key: const ValueKey('crear-tarea'),
         onPressed: _crearTarea,
         icon: const Icon(Icons.add),
-        label: const Text('Nueva tarea'),
+        label: Text(l10n.newTask),
       ),
     );
   }
@@ -86,18 +89,15 @@ class _TareasPageState extends ConsumerState<TareasPage> {
     );
     if (datos == null || !mounted) return;
 
+    final mensajeError = AppLocalizations.of(context).saveTaskError;
     try {
-      await ref.read(tareasProvider.notifier).crearTarea(
-            titulo: datos.titulo,
-            descripcion: datos.descripcion,
-          );
+      await ref
+          .read(tareasProvider.notifier)
+          .crearTarea(titulo: datos.titulo, descripcion: datos.descripcion);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No se pudo guardar la tarea. Inténtalo de nuevo.'),
-        ),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(mensajeError)));
     }
   }
 }

@@ -106,6 +106,9 @@ lib/
 │   └── tareas_completadas_page.dart
 ├── proveedores/
 │   └── proveedor_tareas.dart
+├── l10n/
+│   ├── app_es.arb
+│   └── app_en.arb
 ├── recursos/
 │   ├── colores_app.dart
 │   ├── fuentes_app.dart
@@ -123,6 +126,8 @@ lib/
   del repositorio.
 - **`modelos/`**: entidad de tarea y conversión a/desde filas de SQLite.
 - **`proveedores/`**: proveedor de dependencias y controlador asíncrono.
+- **`l10n/`**: catálogos ARB para textos localizados; Flutter genera la API
+  Dart que consumen las pantallas y widgets.
 - **`pantallas/`**: estructura de navegación y páginas para cada filtro.
 - **`widgets/`**: componentes de presentación reutilizables, formulario y
   estados visuales.
@@ -140,13 +145,27 @@ prueba; esta modularidad no pretende reducir por sí sola el tamaño del APK.
 | `flutter_riverpod` | Contenedor de dependencias y estado reactivo con `AsyncNotifier`; permite inyectar un repositorio falso en pruebas de widgets. |
 | `sqflite` | Base SQLite nativa para persistencia local en Android e iOS. |
 | `path` | Construye la ruta de `tareas.db` de forma compatible con la plataforma, evitando concatenación manual de separadores. |
+| `flutter_localizations` y `intl` | Delegados Material y formato de plurales/valores para los catálogos ARB generados. |
 | `flutter_lints` | Reglas estáticas de estilo y calidad de Dart/Flutter. |
 | `flutter_test` | Pruebas de widgets y flujos de interacción. |
 
-No se agregan `freezed`, `uuid` ni `intl`: el modelo es pequeño, SQLite asigna
-identificadores enteros y la fecha se presenta con un formato numérico sencillo.
-Se retiró `cupertino_icons`, incluido en la plantilla Flutter inicial, porque la
-interfaz actual usa iconos Material y no lo necesita.
+No se agregan `freezed` ni `uuid`: el modelo es pequeño y SQLite asigna
+identificadores enteros. Las fechas se presentan con el formato compacto de
+`MaterialLocalizations`. Se retiró `cupertino_icons`, incluido en la plantilla
+Flutter inicial, porque la interfaz actual usa iconos Material y no lo necesita.
+
+### Internacionalización
+
+La app usa `flutter gen-l10n` con los catálogos `lib/l10n/app_es.arb` y
+`lib/l10n/app_en.arb`; la configuración está en `l10n.yaml`. Los archivos ARB
+son la fuente editable (no son assets que se cargan en ejecución), y Flutter
+genera `AppLocalizations` para usarlos de forma tipada en la interfaz. El idioma
+se selecciona según la configuración del dispositivo, con español como idioma
+preferido cuando no hay coincidencia. Para añadir un texto, se agrega una clave
+a ambos catálogos y se utiliza el getter o método generado; los plurales y
+valores dinámicos se declaran con placeholders en ARB. Los colores, fuentes y
+tema permanecen en `lib/recursos/`, pues son recursos visuales y no cadenas
+traducibles.
 
 ## Plataformas
 
@@ -180,6 +199,9 @@ flutter analyze
 flutter build apk --debug
 ```
 
-La prueba de widgets sustituye `RepositorioTareas` por una implementación en
-memoria; cubre creación, cambio de estado, navegación entre filtros, edición y
-eliminación, sin depender de plugins nativos durante la prueba.
+Las pruebas de widgets sustituyen `RepositorioTareas` por una implementación en
+memoria; cubren creación, cambio de estado, navegación entre filtros, edición,
+eliminación y selección del idioma, sin depender de plugins nativos durante la
+prueba. Los mocks JSON son útiles como fixtures de respuestas HTTP o para
+contratos de serialización; para el repositorio SQLite actual, el fake en
+memoria prueba el contrato sin introducir serialización JSON artificial.

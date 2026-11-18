@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 class ErrorTareas extends StatelessWidget {
   const ErrorTareas({
     required this.mensaje,
@@ -24,7 +26,7 @@ class ErrorTareas extends StatelessWidget {
             const SizedBox(height: 12),
             FilledButton.tonal(
               onPressed: alReintentar,
-              child: const Text('Reintentar'),
+              child: Text(AppLocalizations.of(context).retry),
             ),
           ],
         ),

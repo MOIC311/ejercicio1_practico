@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../recursos/colores_app.dart' as colores_app;
 
 class EstadoVacio extends StatelessWidget {
@@ -32,7 +33,7 @@ class EstadoVacio extends StatelessWidget {
             if (mostrarIndicacion) ...[
               const SizedBox(height: 6),
               Text(
-                'Pulsa «Nueva tarea» para comenzar.',
+                AppLocalizations.of(context).emptyTasksHint,
                 style: Theme.of(context).textTheme.bodyMedium
                     ?.copyWith(color: colores_app.Colors.textoSecundario),
               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../modelos/tarea.dart';
 import '../recursos/colores_app.dart' as colores_app;
 
@@ -19,6 +20,7 @@ class TarjetaTarea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
@@ -64,7 +66,10 @@ class TarjetaTarea extends StatelessWidget {
                     ],
                     const SizedBox(height: 8),
                     Text(
-                      'Creada ${_formatearFecha(tarea.fechaCreacion)}',
+                      l10n.createdDate(
+                        MaterialLocalizations.of(context)
+                            .formatCompactDate(tarea.fechaCreacion.toLocal()),
+                      ),
                       style: Theme.of(context).textTheme.labelSmall
                           ?.copyWith(color: colores_app.Colors.textoSecundario),
                     ),
@@ -73,17 +78,17 @@ class TarjetaTarea extends StatelessWidget {
               ),
             ),
             PopupMenuButton<String>(
-              tooltip: 'Opciones de ${tarea.titulo}',
+              tooltip: l10n.taskOptions(tarea.titulo),
               onSelected: (accion) {
                 if (accion == 'editar') alEditar();
                 if (accion == 'eliminar') alEliminar();
               },
-              itemBuilder: (_) => const [
+              itemBuilder: (_) => [
                 PopupMenuItem(
                   value: 'editar',
                   child: ListTile(
                     leading: Icon(Icons.edit_outlined),
-                    title: Text('Editar'),
+                    title: Text(l10n.edit),
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
@@ -91,7 +96,7 @@ class TarjetaTarea extends StatelessWidget {
                   value: 'eliminar',
                   child: ListTile(
                     leading: Icon(Icons.delete_outline),
-                    title: Text('Eliminar'),
+                    title: Text(l10n.delete),
                     contentPadding: EdgeInsets.zero,
                   ),
                 ),
@@ -101,12 +106,5 @@ class TarjetaTarea extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatearFecha(DateTime fecha) {
-    final local = fecha.toLocal();
-    final dia = local.day.toString().padLeft(2, '0');
-    final mes = local.month.toString().padLeft(2, '0');
-    return '$dia/$mes/${local.year}';
   }
 }

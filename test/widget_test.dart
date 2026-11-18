@@ -12,10 +12,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [repositorioTareasProvider.overrideWithValue(repository)],
-        child: const TodoApp(),
+        child: const TodoApp(locale: Locale('es')),
       ),
     );
     await tester.pumpAndSettle();
+    expect(find.text('Aún no tienes tareas'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('crear-tarea')));
     await tester.pumpAndSettle();
@@ -68,6 +69,23 @@ void main() {
 
     expect(repository.tasks, isEmpty);
     expect(find.text('Aún no tienes tareas'), findsOneWidget);
+  });
+
+  testWidgets('muestra la interfaz en el idioma del dispositivo', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          repositorioTareasProvider.overrideWithValue(_MemoryTaskRepository()),
+        ],
+        child: const TodoApp(locale: Locale('en', 'US')),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('My tasks'), findsOneWidget);
+    expect(find.text('New task'), findsOneWidget);
   });
 }
 

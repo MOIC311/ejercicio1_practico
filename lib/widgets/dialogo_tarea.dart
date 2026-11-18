@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../modelos/tarea.dart';
 
 class DatosTarea {
@@ -15,8 +16,7 @@ class FormularioTareaDialogo extends StatefulWidget {
   final Tarea? tarea;
 
   @override
-  State<FormularioTareaDialogo> createState() =>
-      _FormularioTareaDialogoState();
+  State<FormularioTareaDialogo> createState() => _FormularioTareaDialogoState();
 }
 
 class _FormularioTareaDialogoState extends State<FormularioTareaDialogo> {
@@ -27,9 +27,12 @@ class _FormularioTareaDialogoState extends State<FormularioTareaDialogo> {
   @override
   void initState() {
     super.initState();
-    _controladorTitulo = TextEditingController(text: widget.tarea?.titulo ?? '');
-    _controladorDescripcion =
-        TextEditingController(text: widget.tarea?.descripcion ?? '');
+    _controladorTitulo = TextEditingController(
+      text: widget.tarea?.titulo ?? '',
+    );
+    _controladorDescripcion = TextEditingController(
+      text: widget.tarea?.descripcion ?? '',
+    );
   }
 
   @override
@@ -42,8 +45,9 @@ class _FormularioTareaDialogoState extends State<FormularioTareaDialogo> {
   @override
   Widget build(BuildContext context) {
     final esEdicion = widget.tarea != null;
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text(esEdicion ? 'Editar tarea' : 'Nueva tarea'),
+      title: Text(esEdicion ? l10n.editTask : l10n.newTask),
       content: Form(
         key: _claveFormulario,
         child: SingleChildScrollView(
@@ -56,14 +60,14 @@ class _FormularioTareaDialogoState extends State<FormularioTareaDialogo> {
                 autofocus: true,
                 maxLength: 80,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Título',
-                  hintText: 'Ej. Preparar presentación',
+                decoration: InputDecoration(
+                  labelText: l10n.taskTitle,
+                  hintText: l10n.taskTitleHint,
                   border: OutlineInputBorder(),
                 ),
                 validator: (valor) {
                   if (valor == null || valor.trim().isEmpty) {
-                    return 'Escribe un título';
+                    return l10n.taskTitleRequired;
                   }
                   return null;
                 },
@@ -75,8 +79,8 @@ class _FormularioTareaDialogoState extends State<FormularioTareaDialogo> {
                 maxLines: 3,
                 maxLength: 240,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(
-                  labelText: 'Descripción (opcional)',
+                decoration: InputDecoration(
+                  labelText: l10n.taskDescriptionOptional,
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(),
                 ),
@@ -88,12 +92,12 @@ class _FormularioTareaDialogoState extends State<FormularioTareaDialogo> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
+          child: Text(l10n.cancel),
         ),
         FilledButton(
           key: const ValueKey('guardar-tarea'),
           onPressed: _guardar,
-          child: Text(esEdicion ? 'Guardar cambios' : 'Guardar tarea'),
+          child: Text(esEdicion ? l10n.saveChanges : l10n.saveTask),
         ),
       ],
     );
